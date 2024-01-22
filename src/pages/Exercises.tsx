@@ -13,7 +13,7 @@ import { NavBar, ExerciseView } from "../components";
 import { Exercise, Muscle } from "../pages";
 
 const Exercises = () => {
-	const { exercises, addExercise, saveExercises } = useData();
+	const { exercises, addExercise, saveData } = useData();
 
 	const availableMuscles: Muscle[] = [
 		"Abs",
@@ -59,7 +59,7 @@ const Exercises = () => {
 
 	useEffect(() => {
 		if (exercises.size > 0) {
-			saveExercises();
+			saveData("exercises");
 		}
 	}, [exercises]);
 

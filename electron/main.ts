@@ -90,22 +90,16 @@ function saveData(type: string, data: any) {
   fs.writeFileSync(filePath, JSON.stringify(data, replacer, 2));
 }
 
-// IPC handler for saving logs
-ipcMain.on('save-logs', (event, logs) => {
-  saveData('WorkoutLogs', logs);
-  event.reply('main-process-message', "logs saved");
-});
+const ipcHandlerNames = [['save-logs', 'save-exercises', 'save-config'],['load-logs', 'load-exercises', 'load-config']];
 
-// IPC handler for saving exercises
-ipcMain.on('save-exercises', (event, exercises) => {
-  saveData('Exercises', exercises);
-  event.reply('main-process-message', "exercises saved");
-});
-
-ipcMain.on('save-config', (event, config) => {
-  saveData('Config', config);
-  event.reply('main-process-message', "config saved");
-});
+// IPC handlers for saving data
+for (const handlerName of ipcHandlerNames[0]) {
+  ipcMain.on(handlerName, (event, data) => {
+    const type = handlerName.replace('save-', '')
+    saveData(type, data);
+    event.reply('main-process-message', `${type} saved`)
+  });
+}
 
 // Function to load data based on the type (logs or exercises)
 function loadData(type: string) {
@@ -118,23 +112,15 @@ function loadData(type: string) {
       fs.writeFileSync(filePath, '{}', 'utf-8');
     }
 
-    // const reviver = (key: any, value: any) => {
-    //   if (value && typeof value === 'object' && value.dataType === 'Map') {
-    //     return new Map(value.value);
-    //   } else {
-    //     return value;
-    //   }
-    // };
-
     const fileData = fs.readFileSync(filePath, 'utf-8');
     const parsedData = JSON.parse(fileData);
 
-    if (type === 'WorkoutLogs') {
+    if (type === 'logs') {
       return new Map(Object.entries(parsedData).map(([key, value]) => [key, value as Log]));
-    } else if (type === 'Exercises') {
+    } else if (type === 'exercises') {
       return new Map(Object.entries(parsedData).map(([key, value]) => [key, value as Exercise]));
     } else {
-      if (type === 'Config') {
+      if (type === 'config') {
         return new Map(Object.entries(parsedData).map(([key, value]) => [key, value as string]));
       } else {
         return { error: 'Invalid data type requested' };
@@ -145,16 +131,10 @@ function loadData(type: string) {
   }
 }
 
-// IPC handler for loading logs
-ipcMain.handle('load-logs', () => {
-  return loadData('WorkoutLogs');
-});
-
-// IPC handler for loading exercises
-ipcMain.handle('load-exercises', () => {
-  return loadData('Exercises');
-});
-
-ipcMain.handle('load-config', () => {
-  return loadData('Config');
-});
+for (const handlerName of ipcHandlerNames[1]) {
+  // IPC handler for loading data
+  ipcMain.handle(handlerName, () => {
+    const dataKey = handlerName.replace('load-', ''); // Extract data key from handler name
+    return loadData(dataKey);
+  });
+}

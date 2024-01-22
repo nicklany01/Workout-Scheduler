@@ -4,7 +4,7 @@ import { Container, Form, Button } from "react-bootstrap";
 import { useData } from "../Context"; // Update the path based on your file structure
 
 function Custom() {
-	const { addExercisesToLog, saveLogs, saveConfig } = useData();
+	const { addExercisesToLog, saveData } = useData();
 
 	const [selectedExercises, setSelectedExercises] = useState<Array<string[]>>(
 		Array.from({ length: 7 }, () => [])
@@ -79,8 +79,8 @@ function Custom() {
 						<Button
 							variant="success mb-3"
 							onClick={() => {
-								saveLogs();
-								saveConfig();
+								saveData("logs");
+								saveData("config");
 							}}
 						>
 							Save

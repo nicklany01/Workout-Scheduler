@@ -31,7 +31,10 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise }) => {
 			</Card.Header>
 			<Card.Body className="d-flex flex-column">
 				<Card.Text>
-					<strong>Muscles:</strong> {exercise.muscles.join(", ")}
+					<strong>
+						{exercise.muscles.length > 1 ? "Muscles" : "Muscle"}:
+					</strong>{" "}
+					{exercise.muscles.join(", ")}
 				</Card.Text>
 				<div className="mt-auto">
 					<Button

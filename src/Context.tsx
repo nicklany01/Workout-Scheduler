@@ -22,9 +22,7 @@ interface ContextProps {
 	addExercise: (exercise: Exercise) => void;
 	removeExercise: (exerciseName: string) => void;
 
-	saveLogs: () => void;
-	saveExercises: () => void;
-	saveConfig: () => void;
+	saveData: (data: string) => void;
 }
 
 const Context = createContext<ContextProps | undefined>(undefined);
@@ -131,32 +129,25 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 		});
 	};
 
-	const saveLogs = () => {
+	const saveData = (type: string) => {
+		const types = new Map<string, any>([
+			["logs", logs],
+			["exercises", exercises],
+			["config", config],
+		]);
 		// Check if ipcRenderer is available
 		if (window.ipcRenderer) {
-			window.ipcRenderer.send(
-				"save-logs",
-				Object.fromEntries(logs.entries())
-			);
-		}
-	};
+			if (!types.get(type)) {
+				console.error(
+					"Unable to infer data type. Please provide a valid data object."
+				);
+				return;
+			}
 
-	const saveExercises = () => {
-		// Check if ipcRenderer is available
-		if (window.ipcRenderer) {
+			const data = types.get(type);
 			window.ipcRenderer.send(
-				"save-exercises",
-				Object.fromEntries(exercises.entries())
-			);
-		}
-	};
-
-	const saveConfig = () => {
-		// Check if ipcRenderer is available
-		if (window.ipcRenderer) {
-			window.ipcRenderer.send(
-				"save-config",
-				Object.fromEntries(config.entries())
+				`save-${type.toLowerCase()}`,
+				Object.fromEntries(data.entries())
 			);
 		}
 	};
@@ -173,9 +164,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 				addExercisesToLog,
 				addExercise,
 				removeExercise,
-				saveExercises,
-				saveLogs,
-				saveConfig,
+				saveData,
 			}}
 		>
 			{children}

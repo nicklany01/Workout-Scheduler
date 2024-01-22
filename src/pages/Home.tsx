@@ -6,15 +6,8 @@ import { useEffect, useState } from "react";
 import { Exercise, ExerciseLog, Log } from "../pages";
 
 const Home = () => {
-	const {
-		logs,
-		setLogs,
-		saveLogs,
-		exercises,
-		setExercises,
-		saveExercises,
-		config,
-	} = useData();
+	const { logs, setLogs, saveData, exercises, setExercises, config } =
+		useData();
 
 	const [greeting, setGreeting] = useState("");
 	useEffect(() => {
@@ -31,13 +24,13 @@ const Home = () => {
 
 	useEffect(() => {
 		if (logs.size > 0) {
-			saveLogs();
+			saveData("logs");
 		}
 	}, [logs]);
 
 	useEffect(() => {
 		if (exercises.size > 0) {
-			saveExercises();
+			saveData("exercises");
 		}
 	}, [exercises]);
 
