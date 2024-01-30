@@ -1,5 +1,5 @@
 import { Card, ListGroup, Row, Col, Form, Button } from "react-bootstrap";
-import { Log } from "../pages";
+import { ExerciseLog, Log } from "../pages";
 
 interface LogViewProps {
 	log: Log;
@@ -7,6 +7,16 @@ interface LogViewProps {
 	current: boolean;
 	onHandleSubmit: (e: any) => void;
 }
+
+const checkComplete = (log: Log) => {
+	return log.exerciseLogs.every((exerciseLog: ExerciseLog) => {
+		return (
+			exerciseLog.sets !== 0 &&
+			exerciseLog.reps !== 0 &&
+			exerciseLog.weight !== 0
+		);
+	});
+};
 
 const LogView: React.FC<LogViewProps> = ({
 	log,
@@ -16,7 +26,16 @@ const LogView: React.FC<LogViewProps> = ({
 }) => {
 	return (
 		<Col xs={current ? 12 : 4} className="mb-3">
-			<Card key={date} border={current ? "success" : "secondary"}>
+			<Card
+				key={date}
+				border={
+					current
+						? checkComplete(log)
+							? "success"
+							: "warning"
+						: "secondary"
+				}
+			>
 				<Card.Header>{date}</Card.Header>
 				<Card.Body className="p-2">
 					<ListGroup className="list-group-flush">
