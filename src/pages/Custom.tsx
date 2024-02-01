@@ -49,14 +49,14 @@ function Custom() {
 
 		if (form.checkValidity()) {
 			addExercisesToLog(selectedExercises);
-			alert(
+			console.log(
 				`Selected exercises for each day: ${selectedExercises
 					.map((dayExercises) => dayExercises.join(", "))
 					.join(" | ")}`
 			);
 		} else {
 			event.stopPropagation();
-			alert("Please fill out all fields");
+			// add alert to fill out all fields
 		}
 	};
 
