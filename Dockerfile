@@ -1,4 +1,5 @@
-FROM node:21-alpine
+# first stage, build react app
+FROM node:21-alpine AS build
 
 WORKDIR /app
 # install dependecies first to take advantage of caching
@@ -8,8 +9,15 @@ RUN npm install
 
 COPY . .
 
-ENV PORT=8080
+RUN npm run build
 
-EXPOSE 8080
+# second stage, use nginx to serve the production build
+FROM nginx:alpine
 
-CMD ["npm" , "start"]
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+ENV NODE_ENV=production
+
+CMD ["nginx", "-g", "daemon off;"]
