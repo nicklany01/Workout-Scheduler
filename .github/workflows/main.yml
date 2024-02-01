@@ -37,5 +37,5 @@ jobs:
           push: true
           tags: |
             nlany/images:${{ github.sha }}
-            nlany/images:$IMAGE_TAG
+            nlany/images:${{ env.IMAGE_TAG }}
             nlany/images:latest
