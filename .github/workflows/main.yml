@@ -1,0 +1,38 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }} docker.io
+
+      - name: Get the image ID of the existing latest image
+        id: get_latest_image_id
+        run: |
+          latest_image_id=$(docker image ls your-docker-username/your-repo-name:latest --format "{{.ID}}")
+          echo "::set-output name=latest_image_id::$latest_image_id"
+
+      - name: Remove the latest tag from the existing image
+        if: steps.get_latest_image_id.outputs.latest_image_id != ''
+        run: docker image tag -d ${{ steps.get_latest_image_id.outputs.latest_image_id }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            your-docker-username/your-repo-name:${{ github.sha }}
+            your-docker-username/your-repo-name:$(date +'%Y%m%d%H%M%S')-${{ github.sha }}
+            your-docker-username/your-repo-name:latest
