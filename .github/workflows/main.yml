@@ -11,31 +11,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }} docker.io
 
       - name: Set date and time as environment variable
-        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')-${{ github.sha }}" >> $GITHUB_ENV
-
-      - name: Get the image ID of the existing latest image
-        id: get_latest_image_id
-        run: |
-          latest_image_id=$(docker image ls your-docker-username/images:latest --format "{{.ID}}")
-          echo "::set-output name=latest_image_id::$latest_image_id"
-
-      - name: Remove the latest tag from the existing image
-        if: steps.get_latest_image_id.outputs.latest_image_id != ''
-        run: docker image tag -d ${{ steps.get_latest_image_id.outputs.latest_image_id }}
+        run: echo "IMAGE_TAG=webapp-$(date +'%Y/%m/%d;%H:%M:%S')-${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: |
-            nlany/images:${{ github.sha }}
             nlany/images:${{ env.IMAGE_TAG }}
-            nlany/images:latest
+            nlany/images:webapp-latest
