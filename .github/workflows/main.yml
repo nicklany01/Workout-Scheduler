@@ -19,7 +19,7 @@ jobs:
       - name: Get the image ID of the existing latest image
         id: get_latest_image_id
         run: |
-          latest_image_id=$(docker image ls your-docker-username/your-repo-name:latest --format "{{.ID}}")
+          latest_image_id=$(docker image ls your-docker-username/images:latest --format "{{.ID}}")
           echo "::set-output name=latest_image_id::$latest_image_id"
 
       - name: Remove the latest tag from the existing image
@@ -33,6 +33,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            your-docker-username/your-repo-name:${{ github.sha }}
-            your-docker-username/your-repo-name:$(date +'%Y%m%d%H%M%S')-${{ github.sha }}
-            your-docker-username/your-repo-name:latest
+            nlany/images:${{ github.sha }}
+            nlany/images:$(date +'%Y%m%d%H%M%S')-${{ github.sha }}
+            nlany/images:latest
