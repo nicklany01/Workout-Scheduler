@@ -11,10 +11,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }} docker.io
+
+      - name: Set date and time as environment variable
+        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')-${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Get the image ID of the existing latest image
         id: get_latest_image_id
@@ -34,5 +37,5 @@ jobs:
           push: true
           tags: |
             nlany/images:${{ github.sha }}
-            nlany/images:$(date +'%Y%m%d%H%M%S')-${{ github.sha }}
+            nlany/images:$IMAGE_TAG
             nlany/images:latest
