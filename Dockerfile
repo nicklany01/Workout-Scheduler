@@ -14,11 +14,11 @@ RUN npm run build
 # second stage, use nginx to serve the production build
 FROM nginx:alpine
 
-WORKDIR /hmnt/webapp
+WORKDIR /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist .
 
 EXPOSE 80
 EXPOSE 443
