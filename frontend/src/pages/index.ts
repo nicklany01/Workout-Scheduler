@@ -5,6 +5,7 @@ export { default as Home } from './Home';
 export { default as Template } from './Template';
 export { default as Exercises } from './Exercises';
 export { default as Progress } from './Progress';
+export { default as Account } from './Account';
 
 export class ExerciseLog {
 	constructor(public exercise: string, public sets: number = 0, public reps: number = 0, public weight: number = 0) { }

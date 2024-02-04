@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
 	Home,
 	About,
@@ -8,16 +9,15 @@ import {
 	Template,
 	Exercises,
 	Progress,
+	Account,
 } from "./pages";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ContextProvider } from "./Context";
 
-// Set theme by changing <html> attribute
 const htmlElement = document.documentElement;
 htmlElement.setAttribute("data-bs-theme", "dark");
 
-// Set up React Router
 const router = createBrowserRouter([
 	{
 		path: "/",
@@ -49,20 +49,30 @@ const router = createBrowserRouter([
 		element: <About />,
 		errorElement: <ErrorPage />,
 	},
+	{
+		path: "/account",
+		element: <Account />,
+		errorElement: <ErrorPage />,
+	},
+
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-	<React.StrictMode>
-		<ContextProvider>
-			<RouterProvider router={router} />
-		</ContextProvider>
-	</React.StrictMode>
+	<GoogleOAuthProvider clientId="296356440068-i3cgkvicod3a13s5ljnn2vbofnevrcbd.apps.googleusercontent.com">
+		<React.StrictMode>
+			<ContextProvider>
+				<RouterProvider router={router} />
+			</ContextProvider>
+		</React.StrictMode>
+	</GoogleOAuthProvider>
 );
 
 // Remove Preload scripts loading
 postMessage({ payload: "removeLoading" }, "*");
 
 // Use contextBridge
-window.ipcRenderer.on("main-process-message", (_event, message) => {
-	console.log(message);
-});
+if (window.ipcRenderer) {
+	window.ipcRenderer.on("main-process-message", (_event, message) => {
+		console.log(message);
+	});
+}

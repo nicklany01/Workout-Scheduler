@@ -12,11 +12,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.1",
+    "axios": "^1.6.7",
     "bootstrap": "^5.3.2",
     "chart.js": "^4.4.1",
     "chartjs-adapter-date-fns": "^3.0.0",
     "color-hash": "^2.0.2",
     "date-fns": "^3.2.0",
+    "mysql": "^2.18.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.0",
     "react-chartjs-2": "^5.2.0",

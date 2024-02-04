@@ -34,6 +34,7 @@ function NavBar() {
 					</NavDropdown>
 					<Nav.Link href="/exercises">Exercises</Nav.Link>
 					<Nav.Link href="/progress">Progress</Nav.Link>
+					<Nav.Link href="/account">Account</Nav.Link>
 					<Nav.Link href="/settings">Settings</Nav.Link>
 					<Nav.Link href="/about">About</Nav.Link>
 				</Nav>
