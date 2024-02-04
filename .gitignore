@@ -27,3 +27,5 @@ frontend/*.local
 *.sln
 *.sw?
 
+# Secret environment variables
+*.local

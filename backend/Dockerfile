@@ -1,16 +1,25 @@
-FROM mysql:latest
+FROM node:21-alpine
 
-# Set environment variables
-ENV MYSQL_ROOT_PASSWORD=root_password
-ENV MYSQL_DATABASE=your_database
-ENV MYSQL_USER=your_user
-ENV MYSQL_PASSWORD=your_password
+ARG DB_HOST
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_DATABASE
+ARG SECRET_API_KEY
 
-# Copy SQL scripts to initialize the database
-COPY ./sql-scripts/ /docker-entrypoint-initdb.d/
+WORKDIR /usr/src/app
 
-# Expose the MySQL port
-EXPOSE 3306
+COPY package*.json ./
 
-# CMD instruction to start MySQL server
-CMD ["mysqld"]
+RUN npm install
+
+COPY . .
+
+ENV DB_HOST=$DB_HOST
+ENV DB_USER=$DB_USER
+ENV DB_PASSWORD=$DB_PASSWORD
+ENV DB_DATABASE=$DB_DATABASE
+ENV SECRET_API_KEY=$SECRET_API_KEY
+
+EXPOSE 3001
+
+CMD ["npm", "start"]

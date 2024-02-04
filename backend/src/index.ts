@@ -1,19 +1,21 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import cors from 'cors';
 import mysql, { RowDataPacket } from 'mysql2/promise';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 
+dotenv.config({ path: '.env.local'});
 const app = express();
-const PORT = process.env.PORT || 3001;
-const SECRET_KEY = 'secret_key'; // Replace with a strong, unique secret key
+const PORT = 3001;
+const SECRET_KEY: Secret = process.env.SECRET_KEY || "";
 
 const dbConfig = {
-  host: 'your_sql_server_host',
-  user: 'your_sql_username',
-  password: 'your_sql_password',
-  database: 'your_database_name',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 };
 
 app.use(cors());

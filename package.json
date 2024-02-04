@@ -3,7 +3,8 @@
   "author": "Nicholas Lany",
   "workspaces": [
     "./frontend",
-    "./backend"
+    "./backend",
+    "./database"
   ],
   "version": "1.0.0",
   "description": "Workout Scheduler - A simple app to log workouts and track progress.",
@@ -20,5 +21,8 @@
     "start:frontend": "cd frontend && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": []
+  "keywords": [],
+  "dependencies": {
+    "dotenv": "^16.4.1"
+  }
 }

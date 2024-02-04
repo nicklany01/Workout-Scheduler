@@ -4,8 +4,7 @@ import { Form, Button, Container, Row, Col, Stack } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 
-// const API_BASE_URL = "https://workout.lany.pro/api";
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Account: React.FC = () => {
 	const [username, setUsername] = useState("");
