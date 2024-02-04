@@ -7,7 +7,9 @@
 */pnpm-debug.log*
 */lerna-debug.log*
 
-frontend/node_modules
+node_modules
+*/node_modules
+
 frontend/dist
 frontend/dist-ssr
 frontend/dist-electron
@@ -24,3 +26,4 @@ frontend/*.local
 *.njsproj
 *.sln
 *.sw?
+

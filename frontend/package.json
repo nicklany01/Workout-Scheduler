@@ -1,9 +1,5 @@
 {
-  "name": "workoutscheduler",
-  "author": "Nicholas Lany",
-  "description": "A workout scheduler to track your progress and build plans",
-  "private": true,
-  "version": "1.0.0",
+  "name": "@workoutscheduler/frontend",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -40,7 +36,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "typescript": "^5.2.2",
-    "vite": "^5.0.11",
+    "vite": "^5.0.12",
     "vite-plugin-electron": "^0.14.0",
     "vite-plugin-electron-renderer": "^0.14.5"
   },
