@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Exercise, ExerciseLog, Log } from "../pages";
 
 const Home = () => {
-	const { logs, setLogs, saveData, exercises, setExercises, config } =
+	const { logs, setLogs, saveData, exercises, setExercises, userData } =
 		useData();
 
 	const [greeting, setGreeting] = useState("");
@@ -122,8 +122,8 @@ const Home = () => {
 			<Container>
 				<Navbar expand="lg" className="justify-content-center">
 					<h1>
-						{config.get("name")
-							? `${greeting}, ${config.get("name")}!`
+						{userData.get("name")
+							? `${greeting}, ${userData.get("name")}!`
 							: greeting + "!"}
 					</h1>
 				</Navbar>

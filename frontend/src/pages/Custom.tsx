@@ -80,7 +80,7 @@ function Custom() {
 							variant="success mb-3"
 							onClick={() => {
 								saveData("logs");
-								saveData("config");
+								saveData("userData");
 							}}
 						>
 							Save

@@ -1,14 +1,13 @@
-import { NavBar } from "../components";
+import { NavBar, Signup, Login } from "../components";
 import React, { useEffect, useState } from "react";
-import { Form, Button, Container, Row, Col, Stack } from "react-bootstrap";
+import { Container, Row, Col, Tabs, Tab, Button } from "react-bootstrap";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useData } from "../Context";
 
 const Account: React.FC = () => {
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
+	const { API_BASE_URL } = useData();
+	const { userData, setUserData } = useData();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	useEffect(() => {
@@ -16,6 +15,9 @@ const Account: React.FC = () => {
 		const token = localStorage.getItem("token");
 		if (token) {
 			validateToken(token);
+			fetchUserDetails(token);
+		} else if (window.ipcRenderer) {
+			setIsLoggedIn(true);
 		}
 	}, []);
 
@@ -24,60 +26,26 @@ const Account: React.FC = () => {
 			const response = await axios.post(`${API_BASE_URL}/validateToken`, {
 				token,
 			});
-
-			// If the token is valid, set the login status to true
-			setIsLoggedIn(true);
+			if (response.data.valid) {
+				setIsLoggedIn(true);
+			}
 		} catch (error) {
-			// If the token is invalid or the validation fails, log out the user
 			console.error("Token validation failed:", error);
 			logoutUser();
 		}
 	};
 
-	const handleLogin = async () => {
-		const credentials = { username, password };
-		await loginUser(credentials);
-	};
-
-	const handleSignup = async () => {
-		const userData = { username, password };
-		await signupUser(userData);
-	};
-
-	const loginUser = async (credentials: {
-		username: string;
-		password: string;
-	}) => {
+	const fetchUserDetails = async (token: string) => {
 		try {
 			const response = await axios.post(
-				`${API_BASE_URL}/login`,
-				credentials
+				`${API_BASE_URL}/getUserDetails`,
+				{
+					token,
+				}
 			);
-			const { token } = response.data;
-			localStorage.setItem("token", token);
-			validateToken(token);
-			// Redirect or update state as needed
+			setUserData(new Map<string, string>(Object.entries(response.data)));
 		} catch (error) {
-			console.error("Login failed:", error);
-		}
-	};
-
-	const signupUser = async (credentials: {
-		username: string;
-		password: string;
-	}) => {
-		try {
-			const response = await axios.post(
-				`${API_BASE_URL}/signup`,
-				credentials
-			);
-			// Handle successful signup
-			console.log("Signup successful:", response.data);
-			const { token } = response.data;
-			localStorage.setItem("token", token);
-			validateToken(token);
-		} catch (error) {
-			console.error("Signup failed:", error);
+			console.error("Error fetching user details:", error);
 		}
 	};
 
@@ -99,62 +67,43 @@ const Account: React.FC = () => {
 					<Col xs={12} md={6}>
 						<h1 className="mt-5 mb-3">Account Page</h1>
 						{isLoggedIn ? (
-							<p>Hello, {username}!</p>
+							<>
+								<p>Welcome, {userData.get("username")}!</p>
+								<Button
+									variant="danger"
+									onClick={logoutUser}
+									className="w-100"
+								> 
+									Logout
+								</Button>
+							</>
 						) : (
-							<Form>
-								<Form.Group controlId="formUsername">
-									<Form.Label>Username:</Form.Label>
-									<Form.Control
-										type="text"
-										placeholder="Enter your username"
-										value={username}
-										onChange={(e) =>
-											setUsername(e.target.value)
-										}
-									/>
-								</Form.Group>
-								<Form.Group
-									controlId="formPassword"
-									className="mt-3"
+							<>
+								<Tabs
+									defaultActiveKey="login"
+									className="mb-3"
+									fill
 								>
-									<Form.Label>Password:</Form.Label>
-									<Form.Control
-										type="password"
-										placeholder="Enter your password"
-										value={password}
-										onChange={(e) =>
-											setPassword(e.target.value)
+									<Tab eventKey="login" title="Login">
+										<Login />
+									</Tab>
+									<Tab eventKey="signup" title="Sign Up">
+										<Signup />
+									</Tab>
+								</Tabs>
+								<div className="mt-3 w-100">
+									<GoogleLogin
+										onSuccess={handleGoogleLogin}
+										onError={(error?: any) =>
+											console.error(
+												"Google login failed:",
+												error
+											)
 										}
 									/>
-								</Form.Group>
-								<Stack direction="horizontal" className="mt-3">
-									<Button
-										variant="primary"
-										type="button"
-										onClick={handleLogin}
-										className="w-100 me-2"
-									>
-										Login
-									</Button>
-									<Button
-										variant="primary"
-										type="button"
-										onClick={handleSignup}
-										className="w-100"
-									>
-										Signup
-									</Button>
-								</Stack>
-							</Form>
+								</div>
+							</>
 						)}
-						<div className="mt-3 w-100">
-							<GoogleLogin
-								onSuccess={handleGoogleLogin}
-								onError={(error?: any) =>
-									console.error("Google login failed:", error)
-								}
-							/>
-						</div>
 					</Col>
 				</Row>
 			</Container>

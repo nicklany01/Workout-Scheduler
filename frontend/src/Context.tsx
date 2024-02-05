@@ -15,16 +15,17 @@ interface ContextProps {
 	setLogs: Dispatch<SetStateAction<Map<string, Log>>>;
 	exercises: Map<string, Exercise>;
 	setExercises: Dispatch<SetStateAction<Map<string, Exercise>>>;
-	config: Map<string, string>;
-	setConfig: Dispatch<SetStateAction<Map<string, string>>>;
+	userData: Map<string, string>;
+	setUserData: Dispatch<SetStateAction<Map<string, string>>>;
 
 	addExercisesToLog: (selectedExercises: string[][]) => void;
 	addExercise: (exercise: Exercise) => void;
 	removeExercise: (exerciseName: string) => void;
 
 	saveData: (data: string) => void;
-}
 
+	API_BASE_URL: string;
+}
 const Context = createContext<ContextProps | undefined>(undefined);
 
 export const ContextProvider: React.FC<{ children: ReactNode }> = ({
@@ -34,8 +35,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 	const [exercises, setExercises] = useState<Map<string, Exercise>>(
 		new Map()
 	);
-	const [config, setConfig] = useState<Map<string, string>>(new Map());
-
+	const [userData, setUserData] = useState<Map<string, string>>(new Map());
 	// when component is mounted this executes
 	useEffect(() => {
 		// Check if ipcRenderer is available
@@ -47,8 +47,8 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 			window.ipcRenderer.invoke("load-exercises").then((ex) => {
 				setExercises(ex);
 			});
-			window.ipcRenderer.invoke("load-config").then((config) => {
-				setConfig(config);
+			window.ipcRenderer.invoke("load-userData").then((userData) => {
+				setUserData(userData);
 			});
 		}
 	}, []);
@@ -57,7 +57,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 		var days = selectedExercises.length;
 		console.log(selectedExercises);
 		// Check that startDate is set or is in the future
-		var dateString = config?.get("startDate");
+		var dateString = userData?.get("startDate");
 		var date: Date;
 		if (dateString === undefined) {
 			date = new Date();
@@ -67,7 +67,6 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 				date = new Date();
 			}
 		}
-		const originalDate = date;
 
 		setLogs((prevLogs) => {
 			const newLogs = new Map<string, Log>(prevLogs);
@@ -90,13 +89,6 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 					console.log(format(logDate, "yyyy-MM-dd"));
 				}
 			}
-
-			setConfig((prevConfig) => {
-				const newConfig = new Map<string, string>(prevConfig);
-				date = addDays(originalDate, days);
-				newConfig.set("startDate", format(date, "yyyy-MM-dd"));
-				return newConfig;
-			});
 
 			const sortedEntries = [...newLogs.entries()].sort(
 				([keyA], [keyB]) => keyA.localeCompare(keyB)
@@ -133,7 +125,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 		const types = new Map<string, any>([
 			["logs", logs],
 			["exercises", exercises],
-			["config", config],
+			["userData", userData],
 		]);
 		// Check if ipcRenderer is available
 		if (window.ipcRenderer) {
@@ -146,7 +138,7 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 
 			const data = types.get(type);
 			window.ipcRenderer.send(
-				`save-${type.toLowerCase()}`,
+				`save-${type}`,
 				Object.fromEntries(data.entries())
 			);
 		}
@@ -159,12 +151,13 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 				setLogs,
 				exercises,
 				setExercises,
-				config,
-				setConfig,
+				userData,
+				setUserData,
 				addExercisesToLog,
 				addExercise,
 				removeExercise,
 				saveData,
+				API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
 			}}
 		>
 			{children}
