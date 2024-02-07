@@ -6,8 +6,8 @@ import axios from "axios";
 import { useData } from "../Context";
 
 const Account: React.FC = () => {
-	const { API_BASE_URL } = useData();
-	const { userData, setUserData } = useData();
+	const { API_URL } = useData();
+	const { userData, loadData } = useData();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	useEffect(() => {
@@ -15,16 +15,18 @@ const Account: React.FC = () => {
 		const token = localStorage.getItem("token");
 		if (token) {
 			validateToken(token);
-			fetchUserDetails(token);
+			loadData("userData");
 		} else if (window.ipcRenderer) {
-			setIsLoggedIn(true);
+			logoutUser();
 		}
 	}, []);
 
 	const validateToken = async (token: string) => {
 		try {
-			const response = await axios.post(`${API_BASE_URL}/validateToken`, {
-				token,
+			const response = await axios.get(`${API_URL}/validateToken`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
 			});
 			if (response.data.valid) {
 				setIsLoggedIn(true);
@@ -32,20 +34,6 @@ const Account: React.FC = () => {
 		} catch (error) {
 			console.error("Token validation failed:", error);
 			logoutUser();
-		}
-	};
-
-	const fetchUserDetails = async (token: string) => {
-		try {
-			const response = await axios.post(
-				`${API_BASE_URL}/getUserDetails`,
-				{
-					token,
-				}
-			);
-			setUserData(new Map<string, string>(Object.entries(response.data)));
-		} catch (error) {
-			console.error("Error fetching user details:", error);
 		}
 	};
 
@@ -68,12 +56,12 @@ const Account: React.FC = () => {
 						<h1 className="mt-5 mb-3">Account Page</h1>
 						{isLoggedIn ? (
 							<>
-								<p>Welcome, {userData.get("username")}!</p>
+								<p>Welcome, {userData.get("preferredname")}!</p>
 								<Button
 									variant="danger"
 									onClick={logoutUser}
 									className="w-100"
-								> 
+								>
 									Logout
 								</Button>
 							</>

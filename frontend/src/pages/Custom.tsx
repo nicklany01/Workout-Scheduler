@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavBar, Block } from "../components";
 import { Container, Form, Button } from "react-bootstrap";
 import { useData } from "../Context"; // Update the path based on your file structure
 
 function Custom() {
-	const { addExercisesToLog, saveData } = useData();
+	const { addExercisesToLog, saveData, loadData } = useData();
+
+	useEffect(() => {
+		loadData("exercises");
+	});
 
 	const [selectedExercises, setSelectedExercises] = useState<Array<string[]>>(
 		Array.from({ length: 7 }, () => [])

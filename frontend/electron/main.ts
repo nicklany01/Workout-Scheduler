@@ -100,10 +100,10 @@ const ipcHandlerNames = [
 
 // IPC handlers for saving data
 for (const handlerName of ipcHandlerNames[0]) {
-	ipcMain.on(handlerName, (event, data) => {
+	ipcMain.handle(handlerName, (_, data) => {
 		const type = handlerName.replace("save-", "");
 		saveData(type, data);
-		event.reply("main-process-message", `${type} saved`);
+		return { success: true };
 	});
 }
 

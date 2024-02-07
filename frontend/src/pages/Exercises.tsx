@@ -13,7 +13,7 @@ import { NavBar, ExerciseView } from "../components";
 import { Exercise, Muscle } from "../pages";
 
 const Exercises = () => {
-	const { exercises, addExercise, saveData } = useData();
+	const { exercises, addExercise, loadData, saveData } = useData();
 
 	const availableMuscles: Muscle[] = [
 		"Abs",
@@ -45,7 +45,6 @@ const Exercises = () => {
 			// Save the current scroll position
 			const originalScrollTop = selectMuscleRef.current.scrollTop;
 
-			// Focus on the select element
 			selectMuscleRef.current.focus();
 
 			// Restore the scroll position after a short delay
@@ -62,6 +61,10 @@ const Exercises = () => {
 			saveData("exercises");
 		}
 	}, [exercises]);
+
+	useEffect(() => {
+		loadData("exercises");
+	}, []);
 
 	const toggleMuscle = (selectedMuscle: Muscle) => {
 		setMuscles((prevMuscles) =>
@@ -85,7 +88,7 @@ const Exercises = () => {
 		event.preventDefault();
 		const form = event.currentTarget;
 
-		if (form.checkValidity()) {
+		if (form.checkValidity() && !exercises.has(exerciseName)) {
 			const exercise = new Exercise(exerciseName, [...muscles]);
 			addExercise(exercise);
 			setExerciseName("");
@@ -100,7 +103,7 @@ const Exercises = () => {
 		<>
 			<NavBar />
 			<Container>
-				<Form noValidate validated={validated} onSubmit={handleSubmit}>
+				<Form noValidate onSubmit={handleSubmit}>
 					<Card className="mb-3" style={{ minHeight: "170px" }}>
 						<Card.Header>
 							<InputGroup hasValidation>
@@ -112,9 +115,11 @@ const Exercises = () => {
 									onChange={(e) =>
 										setExerciseName(e.target.value)
 									}
+									isInvalid={validated && exercises.has(exerciseName) || validated && exerciseName === ""}
+									isValid={validated}
 								/>
 								<Form.Control.Feedback type="invalid">
-									Please enter an exercise name.
+									Please enter a unique exercise name.
 								</Form.Control.Feedback>
 							</InputGroup>
 						</Card.Header>
@@ -129,6 +134,9 @@ const Exercises = () => {
 									multiple
 									ref={selectMuscleRef}
 									value={muscles}
+									onChange={(e) => console.log(e)}
+									isInvalid={validated && muscles.length === 0}
+									isValid={validated} // if isInvalid is true, isValid is ignored
 								>
 									{availableMuscles.map((option) => (
 										<option

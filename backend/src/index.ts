@@ -42,15 +42,45 @@ const startServer = async () => {
 	}
 };
 
-function validateToken(token: string): boolean {
-	try {
-		jwt.verify(token, SECRET_KEY);
-		return true;
-	} catch (error) {
-		console.error('Token validation failed:', error);
-		return false;
+// This is so that the request object can have a user property
+declare global {
+	namespace Express {
+		interface Request {
+			user: {
+				userId: number;
+				username: string;
+			};
+		}
 	}
 }
+
+const authenticateToken = (
+	req: Request,
+	res: Response,
+	next: express.NextFunction
+) => {
+	const authHeader = req.headers["authorization"];
+	const token = authHeader && authHeader.split(" ")[1];
+	if (token == null)
+		return res.sendStatus(401).json({ error: "Token not provided" }); // Unauthorized
+
+	var decodedToken;
+	try {
+		decodedToken = jwt.verify(token, SECRET_KEY) as {
+			userId: number;
+			username: string;
+		};
+	} catch (error) {
+		console.error("Token validation failed:", error);
+		return res.sendStatus(403); // Forbidden
+	}
+
+	req.user = {
+		userId: decodedToken.userId,
+		username: decodedToken.username,
+	};
+	next();
+};
 
 app.post("/api/login", async (req: Request, res: Response) => {
 	const { username, password } = req.body;
@@ -128,49 +158,117 @@ app.post("/api/signup", async (req: Request, res: Response) => {
 	}
 });
 
-app.post("/api/validateToken", (req: Request, res: Response) => {
-	const { token } = req.body;
-
-	if (!token) {
-		return res.status(401).json({ error: "Token not provided" });
-	}
-
-	if (validateToken(token)) {
+app.get(
+	"/api/validateToken",
+	authenticateToken,
+	(req: Request, res: Response) => {
 		res.json({ valid: true });
-	} else {
-		res.status(401).json({ error: "Invalid token" });
 	}
-});
+);
 
-app.post("/api/getUserDetails", async (req: Request, res: Response) => {
-	const { token } = req.body;
-
-	if (!token) {
-		return res.status(401).json({ error: "Token not provided" });
+app.get(
+	"/api/getUserData",
+	authenticateToken,
+	async (req: Request, res: Response) => {
+		try {
+			const userDetails = (
+				(await pool.query("SELECT * FROM users WHERE id = ?", [
+					req.user.userId,
+				])) as RowDataPacket[]
+			)[0][0];
+			res.json({
+				id: userDetails.id,
+				username: userDetails.username,
+				preferredname: userDetails.preferredname,
+				email: userDetails.email,
+			});
+		} catch (error) {
+			console.error("Error decoding token:", error);
+			res.status(401).json({ error: "Invalid token" });
+		}
 	}
+);
 
-	try {
-		const decodedToken = jwt.verify(token, SECRET_KEY) as {
-			userId: number;
-			username: string;
-		};
+app.get(
+	"/api/getexercises",
+	authenticateToken,
+	(req: Request, res: Response) => {
+		const query = `
+    SELECT
+    e.name AS exercise_name,
+    JSON_OBJECT(
+        'name', e.name,
+        'muscles', CASE WHEN COUNT(m.name) > 0 THEN JSON_ARRAYAGG(m.name) ELSE NULL END,
+        'progress', JSON_OBJECTAGG(IFNULL(l.id, ''), CASE WHEN el.weight = 0 THEN el.reps ELSE ROUND(el.weight / (1.0278 - (0.0278 * el.reps)), 2) END)
+    ) AS exercise_data
+	FROM
+ 	   exercises e
+	LEFT JOIN
+    	exercise_logs el ON e.id = el.exercise_id
+	LEFT JOIN
+	    logs l ON el.log_id = l.id
+	LEFT JOIN
+	    exercise_muscles em ON e.id = em.exercise_id
+	LEFT JOIN
+	    muscles m ON em.muscle_id = m.id
+	WHERE
+	    (e.user_id IS NULL OR e.user_id = ?)
+	GROUP BY
+	    e.id;
 
-		const userDetails = (
-			(await pool.query("SELECT * FROM users WHERE id = ?", [
-				decodedToken.userId,
-			])) as RowDataPacket[]
-    )[0][0];
-    
-		res.json({
-			id: userDetails.id,
-			username: userDetails.username,
-			preferredname: userDetails.preferredname,
-			email: userDetails.email,
+  `;
+		pool.query(query, [req.user.userId]).then(([results]) => {
+			try {
+				const exerciseData: { [key: string]: any } = {};
+				for (const row of results as RowDataPacket[]) {
+					exerciseData[row.exercise_name] = row.exercise_data;
+				}
+				res.json(exerciseData);
+			} catch (error) {
+				console.error("Error getting exercises:", error);
+				res.status(500).json({ error: "Internal Server Error" });
+			}
 		});
-	} catch (error) {
-		console.error("Error decoding token:", error);
-		res.status(401).json({ error: "Invalid token" });
 	}
+);
+
+app.get("/api/getLogs", authenticateToken, (req: Request, res: Response) => {
+	const query = `
+	SELECT
+    DATE_FORMAT(el.log_id, '%Y-%m-%d') AS log_date,
+    JSON_OBJECT(
+        'exerciseLogs',
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'exercise', e.name,
+                'sets', el.sets,
+                'reps', el.reps,
+                'weight', el.weight
+            )
+        )
+		) AS log_data
+	FROM
+		exercise_logs el
+	JOIN
+		exercises e ON el.exercise_id = e.id
+	JOIN
+		logs l ON el.log_id = l.id
+	WHERE
+		l.user_id = ?
+	GROUP BY
+		el.log_id;`;
+	pool.query(query, [req.user.userId]).then(([results]) => {
+		try {
+			const logData: { [key: string]: any } = {};
+			for (const row of results as RowDataPacket[]) {
+				logData[row.log_date] = row.log_data;
+			}
+			res.json(logData);
+		} catch (error) {
+			console.error("Error getting exercises:", error);
+			res.status(500).json({ error: "Internal Server Error" });
+		}
+	});
 });
 
 startServer();

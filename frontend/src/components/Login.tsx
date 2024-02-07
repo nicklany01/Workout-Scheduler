@@ -4,7 +4,7 @@ import { useData } from "../Context";
 import axios from "axios";
 
 const Login = () => {
-	const { API_BASE_URL } = useData();
+	const { API_URL } = useData();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -20,10 +20,7 @@ const Login = () => {
 		password: string;
 	}) => {
 		try {
-			const response = await axios.post(
-				`${API_BASE_URL}/login`,
-				credentials
-			);
+			const response = await axios.post(`${API_URL}/login`, credentials);
 			const { token } = response.data;
 			localStorage.setItem("token", token);
 		} catch (error) {

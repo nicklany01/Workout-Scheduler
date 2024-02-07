@@ -15,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import { useData } from "../Context";
 import { Container, Dropdown, Stack } from "react-bootstrap";
 import ColorHash from "color-hash";
+import { useEffect } from "react";
 
 ChartJS.register(
 	CategoryScale,
@@ -27,13 +28,17 @@ ChartJS.register(
 );
 
 const Progress = () => {
-	const { exercises } = useData();
+	const { exercises, loadData } = useData();
 	const { search } = useLocation();
 	const params = new URLSearchParams(search);
 	var exerciseSpecified = params.get("exercise");
 	if (exerciseSpecified) {
 		exerciseSpecified = decodeURIComponent(exerciseSpecified);
 	}
+
+	useEffect(() => {
+		loadData("exercises");
+	}, []);
 
 	var options = {
 		responsive: true,

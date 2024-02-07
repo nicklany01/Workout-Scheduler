@@ -4,7 +4,7 @@ import { useData } from "../Context";
 import axios from "axios";
 
 const Signup = () => {
-	const { API_BASE_URL } = useData();
+	const { API_URL } = useData();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -12,7 +12,7 @@ const Signup = () => {
 		e.preventDefault();
 		const userData = { username, password };
 		await signupUser(userData);
-        window.location.reload();
+		window.location.reload();
 	};
 
 	const signupUser = async (credentials: {
@@ -20,10 +20,7 @@ const Signup = () => {
 		password: string;
 	}) => {
 		try {
-			const response = await axios.post(
-				`${API_BASE_URL}/signup`,
-				credentials
-			);
+			const response = await axios.post(`${API_URL}/signup`, credentials);
 			// Handle successful signup
 			console.log("Signup successful:", response.data);
 			const { token } = response.data;

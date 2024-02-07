@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Exercise, ExerciseLog, Log } from "../pages";
 
 const Home = () => {
-	const { logs, setLogs, saveData, exercises, setExercises, userData } =
+	const { logs, setLogs, saveData, exercises, setExercises, userData, loadData } =
 		useData();
 
 	const [greeting, setGreeting] = useState("");
@@ -20,6 +20,9 @@ const Home = () => {
 		} else {
 			setGreeting("Good Evening");
 		}
+
+		loadData("logs");
+		loadData("userData");
 	}, []);
 
 	useEffect(() => {
@@ -122,8 +125,8 @@ const Home = () => {
 			<Container>
 				<Navbar expand="lg" className="justify-content-center">
 					<h1>
-						{userData.get("name")
-							? `${greeting}, ${userData.get("name")}!`
+						{userData.get("preferredname")
+							? `${greeting}, ${userData.get("preferredname")}!`
 							: greeting + "!"}
 					</h1>
 				</Navbar>

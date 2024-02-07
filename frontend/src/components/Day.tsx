@@ -51,16 +51,15 @@ const Day: React.FC<DayProps> = ({
 									<option value="" disabled>
 										Select Exercise
 									</option>
-									{[...exercises.entries()].map(
-										([optionIndex, option]) => (
-											<option
-												key={optionIndex}
-												value={option.name}
-											>
-												{option.name}
-											</option>
-										)
-									)}
+									{[...exercises.entries()].map(([optionIndex, option]) => (
+										<option
+											key={optionIndex}
+											value={option.name}
+											disabled={new Set(selectedExercises).has(option.name)}
+										>
+											{option.name}
+										</option>
+									))}
 								</Form.Select>
 								<Form.Control.Feedback type="invalid">
 									Please select an exercise.

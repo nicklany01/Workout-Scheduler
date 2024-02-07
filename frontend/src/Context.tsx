@@ -5,10 +5,10 @@ import React, {
 	useState,
 	Dispatch,
 	SetStateAction,
-	useEffect,
 } from "react";
 import { Log, ExerciseLog, Exercise } from "./pages";
 import { format, addDays } from "date-fns";
+import axios from "axios";
 
 interface ContextProps {
 	logs: Map<string, Log>;
@@ -22,37 +22,23 @@ interface ContextProps {
 	addExercise: (exercise: Exercise) => void;
 	removeExercise: (exerciseName: string) => void;
 
-	saveData: (data: string) => void;
+	loadData: (data: string) => Promise<any>;
+	saveData: (data: string) => Promise<any>;
 
-	API_BASE_URL: string;
+	API_URL: string;
 }
 const Context = createContext<ContextProps | undefined>(undefined);
 
 export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
+	const API_URL: string = import.meta.env.VITE_API_URL || "";
 	const [logs, setLogs] = useState<Map<string, Log>>(new Map());
 	const [exercises, setExercises] = useState<Map<string, Exercise>>(
 		new Map()
 	);
 	const [userData, setUserData] = useState<Map<string, string>>(new Map());
 	// when component is mounted this executes
-	useEffect(() => {
-		// Check if ipcRenderer is available
-		if (window.ipcRenderer) {
-			// Request data from main process
-			window.ipcRenderer.invoke("load-logs").then((logs) => {
-				setLogs(logs);
-			});
-			window.ipcRenderer.invoke("load-exercises").then((ex) => {
-				setExercises(ex);
-			});
-			window.ipcRenderer.invoke("load-userData").then((userData) => {
-				setUserData(userData);
-			});
-		}
-	}, []);
-
 	const addExercisesToLog = (selectedExercises: string[][]) => {
 		var days = selectedExercises.length;
 		console.log(selectedExercises);
@@ -121,27 +107,110 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 		});
 	};
 
-	const saveData = (type: string) => {
-		const types = new Map<string, any>([
-			["logs", logs],
-			["exercises", exercises],
-			["userData", userData],
-		]);
-		// Check if ipcRenderer is available
-		if (window.ipcRenderer) {
-			if (!types.get(type)) {
-				console.error(
-					"Unable to infer data type. Please provide a valid data object."
+	const loadData = (type: string): Promise<any> => {
+		return new Promise(async (resolve, reject) => {
+			const types = new Map<string, Dispatch<SetStateAction<any>>>([
+				["logs", setLogs],
+				["exercises", setExercises],
+				["userData", setUserData],
+			]);
+
+			const setter = types.get(type);
+			if (!setter) {
+				reject(
+					new Error(
+						"Unable to infer data type. Please provide a valid data object."
+					)
 				);
 				return;
 			}
 
-			const data = types.get(type);
-			window.ipcRenderer.send(
-				`save-${type}`,
-				Object.fromEntries(data.entries())
-			);
-		}
+			if (window.ipcRenderer) {
+				window.ipcRenderer
+					.invoke(`load-${type}`)
+					.then((data) => {
+						setter(data);
+						resolve(data);
+					})
+					.catch((error) => {
+						reject(error);
+					});
+			} else {
+				try {
+					const token = localStorage.getItem("token");
+					if (token) {
+						const response = await axios.get(
+							`${API_URL}/get${
+								type.charAt(0).toUpperCase() + type.slice(1)
+							}`,
+							{
+								headers: {
+									Authorization: `Bearer ${token}`,
+								},
+							}
+						);
+
+						let data;
+						switch (type) {
+							case "logs":
+								data = new Map<string, Log>(
+									Object.entries(response.data)
+								);
+								break;
+							case "exercises":
+								data = new Map<string, Exercise>(
+									Object.entries(response.data)
+								);
+								break;
+							case "userData":
+								data = new Map<string, string>(
+									Object.entries(response.data)
+								);
+								break;
+						}
+
+						setter(data);
+						resolve(data);
+					}
+				} catch (error) {
+					console.error("Error fetching user details:", error);
+					reject(error);
+				}
+			}
+		});
+	};
+	const saveData = (type: string): Promise<void> => {
+		return new Promise((resolve, reject) => {
+			const types = new Map<string, any>([
+				["logs", logs],
+				["exercises", exercises],
+				["userData", userData],
+			]);
+
+			// Check if ipcRenderer is available
+			if (window.ipcRenderer) {
+				const data = types.get(type);
+				if (!data) {
+					reject(
+						new Error(
+							"Unable to infer data type. Please provide a valid data object."
+						)
+					);
+					return;
+				}
+				window.ipcRenderer
+					.invoke(`save-${type}`, Object.fromEntries(data.entries()))
+					.then(() => {
+						// Resolve the promise when the saving operation is successful
+						resolve();
+					})
+					.catch((error) => {
+						// Reject the promise if there's an error during saving
+						reject(error);
+					});
+			} else {
+			}
+		});
 	};
 
 	return (
@@ -156,8 +225,9 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 				addExercisesToLog,
 				addExercise,
 				removeExercise,
+				loadData,
 				saveData,
-				API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+				API_URL,
 			}}
 		>
 			{children}
