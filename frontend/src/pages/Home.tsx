@@ -27,13 +27,13 @@ const Home = () => {
 
 	useEffect(() => {
 		if (logs.size > 0) {
-			saveData("logs");
+			saveData("logs", "update");
 		}
 	}, [logs]);
 
 	useEffect(() => {
 		if (exercises.size > 0) {
-			saveData("exercises");
+			saveData("exercises", null);
 		}
 	}, [exercises]);
 
@@ -74,6 +74,7 @@ const Home = () => {
 								).value
 							) || 0;
 
+						// deep clone everything to avoid mutation
 						var muscles = newExercises
 							?.get(exerciseLog.exercise)
 							?.muscles.map((muscle) => muscle);
@@ -116,7 +117,6 @@ const Home = () => {
 				return updatedLogs;
 			});
 			setExercises(newExercises);
-			console.log(newExercises);
 		}
 	};
 	return (

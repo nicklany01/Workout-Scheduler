@@ -12,8 +12,7 @@ const checkComplete = (log: Log) => {
 	return log.exerciseLogs.every((exerciseLog: ExerciseLog) => {
 		return (
 			exerciseLog.sets !== 0 &&
-			exerciseLog.reps !== 0 &&
-			exerciseLog.weight !== 0
+			exerciseLog.reps !== 0
 		);
 	});
 };
@@ -54,7 +53,7 @@ const LogView: React.FC<LogViewProps> = ({
 												<Form.Label>Sets</Form.Label>
 												<Form.Control
 													type="sets"
-													placeholder={exerciseLog.sets.toString()}
+													defaultValue={exerciseLog.sets.toString()}
 													className="mb-2"
 												/>
 											</Form.Group>
@@ -65,7 +64,7 @@ const LogView: React.FC<LogViewProps> = ({
 												<Form.Label>Reps</Form.Label>
 												<Form.Control
 													type="reps"
-													placeholder={exerciseLog.reps.toString()}
+													defaultValue={exerciseLog.reps.toString()}
 												/>
 											</Form.Group>
 											<Form.Group
@@ -75,7 +74,7 @@ const LogView: React.FC<LogViewProps> = ({
 												<Form.Label>Weight</Form.Label>
 												<Form.Control
 													type="weight"
-													placeholder={exerciseLog.weight.toString()}
+													defaultValue={exerciseLog.weight.toString()}
 												/>
 											</Form.Group>
 										</>

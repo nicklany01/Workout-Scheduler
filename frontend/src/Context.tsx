@@ -18,12 +18,12 @@ interface ContextProps {
 	userData: Map<string, string>;
 	setUserData: Dispatch<SetStateAction<Map<string, string>>>;
 
-	addExercisesToLog: (selectedExercises: string[][]) => void;
+	addExercisesToLog: (selectedExercises: string[][], dateString: string) => void;
 	addExercise: (exercise: Exercise) => void;
 	removeExercise: (exerciseName: string) => void;
 
 	loadData: (data: string) => Promise<any>;
-	saveData: (data: string) => Promise<any>;
+	saveData: (data: string, option?: string | null) => Promise<any>;
 
 	API_URL: string;
 }
@@ -39,11 +39,12 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 	);
 	const [userData, setUserData] = useState<Map<string, string>>(new Map());
 	// when component is mounted this executes
-	const addExercisesToLog = (selectedExercises: string[][]) => {
+	const addExercisesToLog = (
+		selectedExercises: string[][],
+		dateString: string
+	) => {
 		var days = selectedExercises.length;
-		console.log(selectedExercises);
 		// Check that startDate is set or is in the future
-		var dateString = userData?.get("startDate");
 		var date: Date;
 		if (dateString === undefined) {
 			date = new Date();
@@ -72,7 +73,6 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 
 					const logDate = addDays(date, i);
 					newLogs.set(format(logDate, "yyyy-MM-dd"), log);
-					console.log(format(logDate, "yyyy-MM-dd"));
 				}
 			}
 
@@ -173,14 +173,16 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 						resolve(data);
 					}
 				} catch (error) {
-					console.error("Error fetching user details:", error);
 					reject(error);
 				}
 			}
 		});
 	};
-	const saveData = (type: string): Promise<void> => {
-		return new Promise((resolve, reject) => {
+	const saveData = (
+		type: string,
+		option: string | null = null
+	): Promise<void> => {
+		return new Promise(async (resolve, reject) => {
 			const types = new Map<string, any>([
 				["logs", logs],
 				["exercises", exercises],
@@ -209,6 +211,90 @@ export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 						reject(error);
 					});
 			} else {
+				try {
+					const token = localStorage.getItem("token");
+					if (type == "logs" && option == "update") {
+						const currentDate = format(new Date(), "yyyy-MM-dd");
+						if (!logs.get(currentDate)) {
+							resolve();
+							return;
+						}
+						const response = await axios.post(
+							`${API_URL}/update${type.charAt(0).toUpperCase() + type.slice(1)
+							}`,
+							{
+								date: currentDate,
+								exerciseLogs:
+									logs.get(currentDate)?.exerciseLogs,
+							},
+							{
+								headers: {
+									Authorization: `Bearer ${token}`,
+								},
+							}
+						);
+						resolve(response.data);
+					} else if (
+						type == "logs" &&
+						option?.split(":")[0] == "insert"
+					) {
+						const data = types.get(type);
+						if (!data) {
+							reject(
+								new Error(
+									"Unable to infer data type. Please provide a valid data object."
+								)
+							);
+							return;
+						}
+						const response = await axios.post(
+							`${API_URL}/insert${type.charAt(0).toUpperCase() + type.slice(1)
+							}`,
+							{
+								startDate: option.split(":")[1],
+								endDate: option.split(":")[2],
+								logs: Object.fromEntries(data.entries()),
+							},
+							{
+								headers: {
+									Authorization: `Bearer ${token}`,
+								},
+							}
+						);
+						resolve(response.data);
+						return;
+					} else if (type == "exercises") {
+						const data = types.get(type);
+						if (!data) {
+							reject(
+								new Error(
+									"Unable to infer data type. Please provide a valid data object."
+								)
+							);
+							return;
+						} else {
+							const reponse = await axios.post(
+								`${API_URL}/save${type.charAt(0).toUpperCase() + type.slice(1)
+								}`,
+								{
+									exercises: Object.fromEntries(data.entries()),
+								},
+								{
+									headers: {
+										Authorization: `Bearer ${token}`,
+									},
+								}
+							);
+							resolve(reponse.data);
+							return;
+						}	
+					 } else {
+						reject();
+						return;
+					}
+				} catch (error) {
+					reject(error);
+				}
 			}
 		});
 	};

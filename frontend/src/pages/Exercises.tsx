@@ -115,7 +115,11 @@ const Exercises = () => {
 									onChange={(e) =>
 										setExerciseName(e.target.value)
 									}
-									isInvalid={validated && exercises.has(exerciseName) || validated && exerciseName === ""}
+									isInvalid={
+										(validated &&
+											exercises.has(exerciseName)) ||
+										(validated && exerciseName === "")
+									}
 									isValid={validated}
 								/>
 								<Form.Control.Feedback type="invalid">
@@ -135,7 +139,9 @@ const Exercises = () => {
 									ref={selectMuscleRef}
 									value={muscles}
 									onChange={(e) => console.log(e)}
-									isInvalid={validated && muscles.length === 0}
+									isInvalid={
+										validated && muscles.length === 0
+									}
 									isValid={validated} // if isInvalid is true, isValid is ignored
 								>
 									{availableMuscles.map((option) => (
