@@ -18,6 +18,8 @@
 --
 -- Table structure for table `exercise_logs`
 --
+CREATE DATABASE IF NOT EXISTS workout;
+USE workout;
 
 DROP TABLE IF EXISTS `exercise_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
