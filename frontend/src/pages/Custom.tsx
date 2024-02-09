@@ -110,7 +110,6 @@ function Custom() {
 									"logs",
 									`insert:${startDate}:${endDate}`
 								);
-								saveData("userData");
 							}}
 						>
 							Save

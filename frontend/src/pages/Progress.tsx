@@ -82,6 +82,7 @@ const Progress = () => {
 			},
 		];
 	} else {
+		console.log(exercises);
 		const colorHash = new ColorHash();
 		datasets = Array.from(exercises.values()).map((exercise) => {
 			const dataPoints = Object.entries(exercise.progress).map(
@@ -90,7 +91,6 @@ const Progress = () => {
 					y: value,
 				})
 			);
-
 			return {
 				label: exercise.name || undefined,
 				data: dataPoints,
@@ -98,8 +98,18 @@ const Progress = () => {
 				backgroundColor: colorHash.hex(exercise.name) + "80",
 			};
 		});
-	}
 
+		// Sort datasets by the earliest progress date in their set (this prevents a bug that causes larger date values to appear before smaller ones because dataset came first in the array)
+		// reduce time complexity of comparisons by finding min date first (reduces from O(n^2 log n) to O(n log n) for sorting
+		const minDate = datasets.map((dataset: { data: any[]; }) => {
+			return {
+				dataset, minDate: dataset.data.reduce((min, dataPoint) => (dataPoint.x < min ? dataPoint.x : min), dataset.data[0].x)
+				}
+			}
+		);
+		minDate.sort((a, b) => a.minDate.localeCompare(b.minDate));
+		datasets = minDate.map(({ dataset }) => dataset);
+	}
 	const data = {
 		datasets,
 	};

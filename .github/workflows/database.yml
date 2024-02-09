@@ -1,9 +1,7 @@
-name: Deploy Application
+name: Deploy Database
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -19,22 +17,10 @@ jobs:
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }} docker.io
 
-      - name: Build and push frontend docker image
+      - name: Build and push database docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          file: ./Dockerfile
-          push: true
-          build-args: |
-            API_BASE_URL=${{ secrets.API_BASE_URL }}
-          tags: |
-            nlany/images:frontend-${{ env.IMAGE_TAG }}
-            nlany/images:frontend-latest
-
-      - name: Build and push backend docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
+          context: ./database
           file: ./Dockerfile
           push: true
           build-args: |
@@ -42,8 +28,6 @@ jobs:
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_DATABASE=${{ secrets.DB_DATABASE }}
-            SECRET_API_KEY=${{ secrets.SECRET_API_KEY }}
           tags: |
-            nlany/images:backend-${{ env.IMAGE_TAG }}
-            nlany/images:backend-latest
-      
+            nlany/images:database-${{ env.IMAGE_TAG }}
+            nlany/images:database-latest
