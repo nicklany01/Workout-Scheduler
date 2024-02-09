@@ -22,7 +22,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./database
-          file: ./Dockerfile
+          file: ./database/Dockerfile
           push: true
           build-args: |
             DB_HOST=${{ secrets.DB_HOST }}
