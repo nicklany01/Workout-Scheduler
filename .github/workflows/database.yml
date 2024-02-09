@@ -7,8 +7,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     environment: build
-    env:
-      IMAGE_TAG: "$(date +'%Y-%m-%d_%H-%M-%S')-${{ github.sha }}"
     
     steps:
       - name: Checkout code
@@ -16,7 +14,10 @@ jobs:
 
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }} docker.io
-
+      
+      - name: Set date and time as environment variable
+        run: echo "IMAGE_TAG=webapp-$(date +'%Y-%m-%d_%H-%M-%S')-${{ github.sha }}" >> $GITHUB_ENV
+      
       - name: Build and push database docker image
         uses: docker/build-push-action@v5
         with:
