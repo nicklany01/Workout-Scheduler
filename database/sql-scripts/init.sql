@@ -18,18 +18,7 @@
 --
 -- Table structure for table `exercise_logs`
 --
-
-CREATE DATABASE IF NOT EXISTS ${DB_DATABASE};
-
-USE ${DB_DATABASE};
-
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-
-GRANT ALL PRIVILEGES ON ${DB_DATABASE}.* TO '${DB_USER}'@'%';
-
-FLUSH PRIVILEGES;
-
-
+USE `workout`;
 DROP TABLE IF EXISTS `exercise_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
