@@ -5,7 +5,7 @@ ARG API_BASE_URL
 
 WORKDIR /app
 # install dependecies first to take advantage of caching
-COPY package*.json ./
+COPY ./package*.json ./
 
 RUN npm install
 
@@ -18,9 +18,9 @@ FROM nginx:alpine
 
 WORKDIR /usr/share/nginx/html
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=build /app/dist .
+COPY --from=build ./app/dist .
 
 EXPOSE 80
 EXPOSE 443
