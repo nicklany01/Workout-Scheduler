@@ -20,9 +20,6 @@ jobs:
       - name: Set date and time as environment variable
         run: echo "IMAGE_TAG=$(date +'%Y-%m-%d_%H-%M-%S')-${{ github.sha }}" >> $GITHUB_ENV
       
-      - name: Print Directory Contents
-        run: ls -la ./frontend
-      
       - name: Build and push frontend docker image
         uses: docker/build-push-action@v5
         with:
