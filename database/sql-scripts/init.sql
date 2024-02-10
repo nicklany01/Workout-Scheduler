@@ -18,7 +18,8 @@
 --
 -- Table structure for table `exercise_logs`
 --
-USE `workout`;
+USE workout;
+
 DROP TABLE IF EXISTS `exercise_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -159,9 +160,10 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `preferredname` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -170,7 +172,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'test1','Name','test1@example.com');
+INSERT INTO `users` VALUES (1,'test1','Name','test1@example.com','$2b$10$W9nco98.wK4Wr3NebFJlYej8nk96j.BzDA5daSkoh6J/ftmQd3xPG');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -210,4 +212,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-09 10:42:37
+-- Dump completed on 2024-02-10 16:24:11
