@@ -19,6 +19,7 @@ const Login = () => {
 		username: string;
 		password: string;
 	}) => {
+		console.log("Request URL: ", `${API_URL}/login`);
 		try {
 			const response = await axios.post(`${API_URL}/login`, credentials);
 			const { token } = response.data;
