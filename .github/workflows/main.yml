@@ -27,8 +27,6 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          build-args: |
-            API_URL=${{ secrets.API_URL }}
           tags: |
             nlany/images:frontend-${{ env.IMAGE_TAG }}
             nlany/images:frontend-latest

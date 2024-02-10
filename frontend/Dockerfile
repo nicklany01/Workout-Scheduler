@@ -23,8 +23,6 @@ COPY --from=build ./app/dist .
 EXPOSE 80
 EXPOSE 443
 
-ARG API_URL
-ENV api_url=$API_URL
 ENV NODE_ENV=production
 
 CMD ["nginx", "-g", "daemon off;"]
