@@ -82,7 +82,7 @@ const authenticateToken = (
 	next();
 };
 
-app.post("/api/login", async (req: Request, res: Response) => {
+app.post("/login", async (req: Request, res: Response) => {
 	const { username, password } = req.body;
 
 	try {
@@ -116,7 +116,7 @@ app.post("/api/login", async (req: Request, res: Response) => {
 	}
 });
 
-app.post("/api/signup", async (req: Request, res: Response) => {
+app.post("/signup", async (req: Request, res: Response) => {
 	const { username, password } = req.body;
 
 	try {
@@ -159,7 +159,7 @@ app.post("/api/signup", async (req: Request, res: Response) => {
 });
 
 app.get(
-	"/api/validateToken",
+	"/validateToken",
 	authenticateToken,
 	(req: Request, res: Response) => {
 		res.json({ valid: true });
@@ -167,7 +167,7 @@ app.get(
 );
 
 app.get(
-	"/api/getUserData",
+	"/getUserData",
 	authenticateToken,
 	async (req: Request, res: Response) => {
 		try {
@@ -224,7 +224,7 @@ const getExercisesData = async (userId: number) => {
 };
 
 app.get(
-	"/api/getExercises",
+	"/getExercises",
 	authenticateToken,
 	async (req: Request, res: Response) => {
 		try {
@@ -237,7 +237,7 @@ app.get(
 	}
 );
 
-app.get("/api/getLogs", authenticateToken, (req: Request, res: Response) => {
+app.get("/getLogs", authenticateToken, (req: Request, res: Response) => {
 	const query = `
 	SELECT
     DATE_FORMAT(el.log_id, '%Y-%m-%d') AS log_date,
@@ -277,7 +277,7 @@ app.get("/api/getLogs", authenticateToken, (req: Request, res: Response) => {
 });
 
 app.post(
-	"/api/updateLogs",
+	"/updateLogs",
 	authenticateToken,
 	(req: Request, res: Response) => {
 		const query = `
@@ -336,7 +336,7 @@ const deleteLogsInRange = async (
 };
 
 app.post(
-	"/api/insertLogs/",
+	"/insertLogs/",
 	authenticateToken,
 	deleteLogsInRange,
 	async (req, res) => {
@@ -375,7 +375,7 @@ app.post(
 );
 
 app.post(
-	"/api/saveExercises",
+	"/saveExercises",
 	authenticateToken,
 	async (req: Request, res: Response) => {
 		const { exercises } = req.body;
