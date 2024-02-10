@@ -9,9 +9,6 @@ RUN npm install
 
 COPY . .
 
-ARG API_URL
-ENV VITE_API_URL=$API_URL
-
 RUN npm run build
 
 # second stage, use nginx to serve the production build
@@ -26,6 +23,8 @@ COPY --from=build ./app/dist .
 EXPOSE 80
 EXPOSE 443
 
+ARG API_URL
+ENV API_URL=$API_URL
 ENV NODE_ENV=production
 
 CMD ["nginx", "-g", "daemon off;"]
