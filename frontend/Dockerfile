@@ -1,8 +1,6 @@
 # first stage, build react app
 FROM node:21-alpine AS build
 
-ARG API_URL
-
 WORKDIR /app
 # install dependecies first to take advantage of caching
 COPY ./package*.json ./
@@ -25,6 +23,7 @@ COPY --from=build ./app/dist .
 EXPOSE 80
 EXPOSE 443
 
+ARG API_URL
 ENV NODE_ENV=production
 ENV VITE_API_URL=$API_URL
 
