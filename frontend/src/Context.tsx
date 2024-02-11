@@ -32,8 +32,8 @@ const Context = createContext<ContextProps | undefined>(undefined);
 export const ContextProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const API_URL: string = "/api";
-	// const API_URL: string = import.meta.env.VITE_API_URL || "";
+	// important for local testing
+	const API_URL: string = import.meta.env.VITE_API_URL || "/api";
 	const [logs, setLogs] = useState<Map<string, Log>>(new Map());
 	const [exercises, setExercises] = useState<Map<string, Exercise>>(
 		new Map()

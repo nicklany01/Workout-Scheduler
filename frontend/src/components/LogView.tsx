@@ -10,10 +10,7 @@ interface LogViewProps {
 
 const checkComplete = (log: Log) => {
 	return log.exerciseLogs.every((exerciseLog: ExerciseLog) => {
-		return (
-			exerciseLog.sets !== 0 &&
-			exerciseLog.reps !== 0
-		);
+		return exerciseLog.sets !== 0 && exerciseLog.reps !== 0;
 	});
 };
 

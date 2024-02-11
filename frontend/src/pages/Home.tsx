@@ -6,8 +6,15 @@ import { useEffect, useState } from "react";
 import { Exercise, ExerciseLog, Log } from "../pages";
 
 const Home = () => {
-	const { logs, setLogs, saveData, exercises, setExercises, userData, loadData } =
-		useData();
+	const {
+		logs,
+		setLogs,
+		saveData,
+		exercises,
+		setExercises,
+		userData,
+		loadData,
+	} = useData();
 
 	const [greeting, setGreeting] = useState("");
 	useEffect(() => {
